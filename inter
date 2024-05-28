@@ -1,0 +1,65 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class Logger {
+    private static boolean consoleOutput = true; // Define se a saída é no console
+    private static boolean fileOutput = true; // Define se a saída é em arquivo
+    private static String logFileName = "log.txt"; // Nome do arquivo de log
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    // Níveis de log
+    public enum LogLevel {
+        DEBUG, WARNING, ERROR
+    }
+
+ 
+    public static void log(LogLevel level, String message) {
+        String formattedMessage = String.format("[%s] %s: %s", LocalDateTime.now().format(formatter), level, message);
+        
+        if (consoleOutput) {
+            printToConsole(level, formattedMessage);
+        }
+        
+        if (fileOutput) {
+            writeToLogFile(formattedMessage);
+        }
+    }
+
+ 
+    private static void printToConsole(LogLevel level, String message) {
+        switch (level) {
+            case DEBUG:
+                System.out.println("\u001B[32m" + message + "\u001B[0m"); // Verde
+                break;
+            case WARNING:
+                System.out.println("\u001B[33m" + message + "\u001B[0m"); // Amarelo
+                break;
+            case ERROR:
+                System.out.println("\u001B[31m" + message + "\u001B[0m"); // Vermelho
+                break;
+            default:
+                System.out.println(message);
+                break;
+        }
+    }
+
+
+    private static void writeToLogFile(String message) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFileName, true))) {
+            writer.write(message);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void main(String[] args) {
+        log(LogLevel.DEBUG, "Isso é uma mensagem de debug.");
+        log(LogLevel.WARNING, "Isso é uma mensagem de aviso.");
+        log(LogLevel.ERROR, "Isso é uma mensagem de erro.");
+    }
+}
